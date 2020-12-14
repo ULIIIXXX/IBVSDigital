@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="dpjavapos">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/resources/dpjavapos.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

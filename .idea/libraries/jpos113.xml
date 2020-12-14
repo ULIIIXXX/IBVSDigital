@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jpos113">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/resources/jpos113.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
