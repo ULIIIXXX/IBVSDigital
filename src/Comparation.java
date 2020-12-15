@@ -1,14 +1,25 @@
 import com.digitalpersona.uareu.*;
+import tesseract.ApiMethods;
 
 import javax.imageio.ImageIO;
+import javax.swing.text.TabExpander;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Scanner;
+import java.util.zip.DeflaterOutputStream;
 
 public class Comparation {
+
+    BufferedImage imagen;
+    ByteArrayOutputStream bos;
 
 
     public enum Evento{
@@ -93,17 +104,18 @@ public class Comparation {
                     System.out.println(data);*/
 
                     //creacion
-                    byte [] datas = null;
+                    ApiMethods methods = new ApiMethods();
                     Fmd archivo = null;
-                    BufferedImage imagen = ImageIO.read(new File("C:\\Users\\Tesseract\\Documents\\IBVSDigital\\resources\\dedo.png"));
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    imagen = ImageIO.read(new File("C:\\Users\\Tesseract\\Documents\\IBVSDigital\\resources\\dedo.png"));
+                    bos = new ByteArrayOutputStream();
                     ImageIO.write(imagen, "png", bos);
-                    datas = bos.toByteArray();
-
                     //Comparacion
                    // archivo = engine.CreateFmd(datas,357,392,197,1,3407615,Fmd.Format.ANSI_378_2004);
                     //archivo = UareUGlobal.GetImporter().ImportFmd(datas,Fmd.Format.ANSI_378_2004, Fmd.Format.ANSI_378_2004);
+
+
                     archivo = engine.CreateFmd(toBytes(imagen),imagen.getWidth(),imagen.getHeight(),500,0,3407615,Fmd.Format.ISO_19794_2_2005);
+
                     if(engine.Compare(archivo,0,fmd,0) < 2000){
                         System.out.println("Persona autenticada, las huellas coinciden");
                         System.out.println("Resultado obtenido: " + engine.Compare(archivo,0,fmd,0));
@@ -188,6 +200,11 @@ public class Comparation {
         return archivo;
     }
 
+    public void cifrarHuella(byte[] huella){
+        ApiMethods api = new ApiMethods();
+        api.encryptAES(ApiMethods.EncryptionMode.ENCRYPT,huella);
+    }
+
     //metodo que works
     public byte[] toBytes(BufferedImage image){
         WritableRaster raster = image.getRaster();
@@ -196,14 +213,40 @@ public class Comparation {
     }
 
     public static void main(String[]  args){
-        System.out.println("Inicia el test");
-        try{
+        Scanner scan = new Scanner(System.in);
+        Comparation comparation = new Comparation();
+        int opc = 0;
+        do{
+            System.out.println("--------------------------------------------------------------------------------------");
+            System.out.println("Ingrese la opcion deseada");
+            System.out.println("1- Cifrar huella");
+            System.out.println("2- Descifrar huella");
+            System.out.println("3- Validar huella");
+            System.out.println("4- Salir");
+            System.out.println("--------------------------------------------------------------------------------------");
+            opc = scan.nextInt();
+            switch (opc){
+                case 1:
+                    //comparation.cifrarHuella();
+                    break;
+                case 3:
+                    comparation.enrolar();
+                    break;
+                case 4:
+                    System.out.println("Byes");
+                    break;
+                default:
+                    System.out.println("Opcion invalida");
+            }
+        }while(opc < 4);
+       /* try{
             Comparation comparation = new Comparation();
-            //comparation.fromImage();
-            comparation.enrolar();
+            //comparation.enrolar();
+            comparation.TestEncript();
+
         }catch (ArrayIndexOutOfBoundsException ex){
             ex.printStackTrace();
-        }
+        }*/
     }
 
 }
