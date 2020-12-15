@@ -1,6 +1,9 @@
+import Mysql.MySqlConnection;
 import com.digitalpersona.uareu.*;
 import tesseract.ApiMethods;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import javax.imageio.ImageIO;
 import javax.swing.text.TabExpander;
 import java.awt.image.BufferedImage;
@@ -11,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
@@ -20,6 +24,10 @@ public class Comparation {
 
     BufferedImage imagen;
     ByteArrayOutputStream bos;
+
+    String ALGO = "AES";
+    byte[] keyValue = "Ad0#2s!3oGyRq!5F".getBytes();
+    Key key = null;
 
 
     public enum Evento{
@@ -109,12 +117,21 @@ public class Comparation {
                     imagen = ImageIO.read(new File("C:\\Users\\Tesseract\\Documents\\IBVSDigital\\resources\\dedo.png"));
                     bos = new ByteArrayOutputStream();
                     ImageIO.write(imagen, "png", bos);
+
                     //Comparacion
                    // archivo = engine.CreateFmd(datas,357,392,197,1,3407615,Fmd.Format.ANSI_378_2004);
                     //archivo = UareUGlobal.GetImporter().ImportFmd(datas,Fmd.Format.ANSI_378_2004, Fmd.Format.ANSI_378_2004);
 
 
                     archivo = engine.CreateFmd(toBytes(imagen),imagen.getWidth(),imagen.getHeight(),500,0,3407615,Fmd.Format.ISO_19794_2_2005);
+                    /*System.out.println(Arrays.toString(archivo.getData()));
+                    System.out.println(Arrays.toString(encrypt(archivo.getData())));
+                    System.out.println(Arrays.toString(decrypt(encrypt(archivo.getData()))));
+                    System.out.println("Longitus" + archivo.getData().length);
+
+                    Fmd nuevo = UareUGlobal.GetImporter().ImportFmd(decrypt(encrypt(archivo.getData())), Fmd.Format.ISO_19794_2_2005, Fmd.Format.ISO_19794_2_2005);*/
+                    MySqlConnection connection = new MySqlConnection();
+                    connection.insertarDatos("Ulises",archivo.getData());
 
                     if(engine.Compare(archivo,0,fmd,0) < 2000){
                         System.out.println("Persona autenticada, las huellas coinciden");
@@ -212,7 +229,33 @@ public class Comparation {
         return (data.getData());
     }
 
+    //cifrar byteArray
+    public byte[] encrypt(byte[] Data) throws  Exception{
+         key = generateKey();
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.ENCRYPT_MODE,key);
+        byte[] encVal = c.doFinal(Data);
+        return encVal;
+    }
+
+    public byte[] decrypt(byte[] Data) throws  Exception{
+        key = generateKey();
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.DECRYPT_MODE,key);
+        byte[] decValue = c.doFinal(Data);
+        return decValue;
+    }
+
+    private  Key generateKey() throws  Exception{
+        if(key == null){
+            key = new SecretKeySpec(keyValue,ALGO);
+        }
+        return  key;
+    }
+
     public static void main(String[]  args){
+
+
         Scanner scan = new Scanner(System.in);
         Comparation comparation = new Comparation();
         int opc = 0;
